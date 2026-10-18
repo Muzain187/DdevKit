@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevKit – Sanitize, Transform &amp; Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f7f7f5;--sf:#fff;--tx:#1a1a1a;--mu:#6b6b66;--bd:#dcdcd6;--ac:#0f766e;--acx:#fff;--cd:#eef1ee}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111413;--sf:#1a1e1d;--tx:#e8ece9;--mu:#8f9892;--bd:#2d3432;--ac:#2dd4bf;--acx:#06201c;--cd:#151918}}
+:root[data-theme="dark"]{--bg:#111413;--sf:#1a1e1d;--tx:#e8ece9;--mu:#8f9892;--bd:#2d3432;--ac:#2dd4bf;--acx:#06201c;--cd:#151918}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header,main,footer{max-width:1000px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:0}h1 span{color:var(--ac)}
+.sub{color:var(--mu);margin:4px 0 0}
+.badge{display:inline-block;margin-top:10px;padding:4px 10px;border:1px solid var(--bd);border-radius:99px;font-size:13px;background:var(--sf)}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 16px}
+nav button{padding:9px 14px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);border-radius:8px;cursor:pointer;font:inherit}
+nav button.on{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+.tool{display:none}.tool.on{display:block}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:13px;color:var(--mu);margin:0 0 4px}
+textarea,select,input{width:100%;background:var(--sf);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:10px;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace}
+textarea{min-height:230px;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;align-items:center}
+.btn{padding:8px 14px;border:0;border-radius:8px;background:var(--ac);color:var(--acx);cursor:pointer;font:inherit}
+.btn.g{background:var(--cd);color:var(--tx);border:1px solid var(--bd)}
+pre{margin:0;background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:10px;overflow-x:auto;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace;min-height:60px;white-space:pre-wrap;word-break:break-word}
+.tbl{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{color:var(--mu);font-weight:600}
+.err{color:#dc2626}.ok{color:var(--ac)}.warn{color:#d97706}
+h2{font-size:16px;margin:18px 0 6px}
+.ad{margin:24px 0;padding:18px;text-align:center;border:1px dashed var(--bd);border-radius:8px;color:var(--mu);font-size:12px}
+footer{color:var(--mu);font-size:13px}
+:root{--bg:#f6f7f9;--sf:#fff;--tx:#0f172a;--mu:#64748b;--bd:#e2e8f0;--ac:#4f46e5;--acx:#fff;--cd:#f1f5f9;--sh:0 1px 2px rgba(15,23,42,.06),0 8px 24px rgba(15,23,42,.04)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0f17;--sf:#121826;--tx:#e6eaf2;--mu:#8b95a8;--bd:#222c3d;--ac:#818cf8;--acx:#0b0f17;--cd:#0e1420;--sh:none}}
+:root[data-theme="dark"]{--bg:#0b0f17;--sf:#121826;--tx:#e6eaf2;--mu:#8b95a8;--bd:#222c3d;--ac:#818cf8;--acx:#0b0f17;--cd:#0e1420;--sh:none}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:12;background:var(--bg)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--bg);border-bottom:1px solid var(--bd)}
+.wrap{max-width:1000px;margin:0 auto;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;gap:10px;align-items:center;font-weight:700;color:var(--tx);text-decoration:none;font-size:17px;letter-spacing:-.01em}
+.logo svg{width:28px;height:28px}
+.ico{border:1px solid var(--bd);background:var(--sf);color:var(--tx);border-radius:10px;width:36px;height:36px;cursor:pointer;font-size:16px}
+header{padding-top:40px;padding-bottom:12px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ac)}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15;letter-spacing:-.025em;margin:8px 0 12px;max-width:660px}
+.sub{max-width:620px;font-size:16px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.chips span{font-size:13px;padding:5px 12px;border:1px solid var(--bd);border-radius:99px;background:var(--sf);color:var(--mu)}
+nav{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 14px}
+@media(max-width:720px){nav{grid-template-columns:1fr}}
+nav button{text-align:left;padding:14px 16px;border-radius:12px;box-shadow:var(--sh);transition:.15s}
+nav button b{display:block;font-size:15px}nav button small{display:block;opacity:.75;font-size:12.5px;margin-top:2px}
+.tool.on{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:20px;box-shadow:var(--sh)}
+.th{margin:0 0 4px;font-size:20px;letter-spacing:-.01em}.td{margin:0 0 16px;color:var(--mu)}
+textarea,pre,select,input{border-radius:10px}
+textarea:focus,select:focus{outline:2px solid var(--ac);outline-offset:1px}
+.btn{font-weight:600;padding:9px 16px}.btn:hover{filter:brightness(1.08)}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
+.ad{background:transparent}
+footer{border-top:1px solid var(--bd);margin-top:24px;padding-top:24px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+#home.on{background:none;border:0;box-shadow:none;padding:0}
+body[data-view=home] header,body[data-view=home] nav,body[data-view=tool] header{display:none}
+.links{display:flex;gap:20px;margin-left:auto;margin-right:14px}.links a{color:var(--mu);text-decoration:none;font-size:14px;font-weight:500;transition:color .15s}.links a:hover{color:var(--tx)}
+@media(max-width:720px){.links{display:none}}
+a.btn{text-decoration:none;display:inline-block}
+.hero{position:relative;overflow:hidden;border:1px solid var(--bd);border-radius:20px;padding:56px 28px 40px;background:var(--sf);text-align:center;box-shadow:var(--sh)}
+.hero>*{position:relative;z-index:1}
+.hero::before{content:"";position:absolute;inset:0;z-index:0;opacity:.45;background-image:linear-gradient(var(--bd) 1px,transparent 1px),linear-gradient(90deg,var(--bd) 1px,transparent 1px);background-size:32px 32px;-webkit-mask-image:radial-gradient(ellipse at center,#000 20%,transparent 75%);mask-image:radial-gradient(ellipse at center,#000 20%,transparent 75%);animation:pan 6s linear infinite}
+@keyframes pan{to{background-position:32px 32px}}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.3;z-index:0!important;animation:float 12s ease-in-out infinite}
+.o1{width:320px;height:320px;background:var(--ac);top:-110px;left:-80px}
+.o2{width:260px;height:260px;background:#06b6d4;bottom:-100px;right:-60px;animation-delay:-6s}
+@keyframes float{50%{transform:translate(40px,30px) scale(1.12)}}
+.hero h1{margin:10px auto 14px;max-width:760px}
+.hero .sub{margin:0 auto}
+.rot{display:inline-block;color:var(--ac);border-right:3px solid var(--ac);padding-right:4px;min-height:1.15em;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{border-color:transparent}}
+.cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:22px 0 4px}
+.hero .chips{justify-content:center}
+.demo{max-width:580px;margin:30px auto 0;text-align:left;border:1px solid var(--bd);border-radius:12px;background:var(--cd);overflow:hidden;animation:rise .9s ease both .2s}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}}
+.demo .bar{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--bd);align-items:center}
+.demo .bar i{width:10px;height:10px;border-radius:50%;background:var(--bd)}
+.demo .bar span{margin-left:8px;font-size:12px;color:var(--mu)}
+.demo pre{border:0;border-radius:0;min-height:128px;background:transparent}
+.stats,.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+@media(max-width:720px){.stats,.feat{grid-template-columns:1fr}.hero{padding:40px 16px 28px}}
+.stat{text-align:center;padding:18px;border:1px solid var(--bd);border-radius:14px;background:var(--sf)}
+.stat b{display:block;font-size:32px;letter-spacing:-.02em;color:var(--ac)}.stat span{color:var(--mu);font-size:13px}
+.card{display:block;text-decoration:none;color:var(--tx);padding:22px;border:1px solid var(--bd);border-radius:14px;background:var(--sf)}
+.card:hover{transform:translateY(-4px);border-color:var(--ac);box-shadow:var(--sh)}
+.card .n{font-size:12px;font-weight:700;color:var(--ac);letter-spacing:.08em}
+.card h3{margin:6px 0;font-size:18px}.card p{margin:0;color:var(--mu);font-size:14px}
+.card .go{display:inline-block;margin-top:12px;color:var(--ac);font-weight:600;font-size:14px}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease,border-color .2s,box-shadow .2s}
+.rv.in{opacity:1;transform:none}
+.rv.in.card:hover{transform:translateY(-4px)}
+.band{margin:14px 0;padding:34px 20px;border-radius:16px;background:var(--ac);color:var(--acx);text-align:center}
+.band h2{margin:0 0 6px;font-size:22px}.band p{margin:0;opacity:.85}
+.band a{display:inline-block;margin-top:16px;padding:10px 20px;border-radius:10px;background:var(--acx);color:var(--ac);font-weight:600;text-decoration:none}
+@media(prefers-reduced-motion:reduce){*,*::before{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><a class="logo" href="#sanitize"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--ac)"/><path d="M12 10l-5 6 5 6M20 10l5 6-5 6" stroke="var(--acx)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>DevKit</a><div class="links"><a href="#home">Home</a><a href="#sanitize">DevSanitize</a><a href="#payload">PayloadViz</a><a href="#cron">CronStudio</a></div><button id="theme" class="ico" aria-label="Toggle light or dark theme">◐</button></div></div>
+<header>
+<span class="eyebrow">Free developer utilities</span>
+<h1>Clean secrets. Convert payloads. Debug schedules.</h1>
+<p class="sub">Three everyday tools in one fast workspace. Everything runs in your browser, so what you paste never leaves your machine.</p>
+<div class="chips"><span>100% client-side</span><span>No sign-up</span><span>Verify in the Network tab</span></div>
+</header>
+<main>
+<nav id="nav">
+<button data-t="sanitize"><b>DevSanitize</b><small>Redact secrets in env files and logs</small></button>
+<button data-t="payload"><b>PayloadViz</b><small>JSON to types, schemas and JWT decode</small></button>
+<button data-t="cron"><b>CronStudio</b><small>Inspect cron runs across timezones</small></button>
+</nav>
+
+<section class="tool" id="home">
+<div class="hero"><div class="orb o1"></div><div class="orb o2"></div>
+<span class="eyebrow">Free · private · instant</span>
+<h1>Developer tools to<br><span class="rot" id="rot">sanitize secrets</span></h1>
+<p class="sub">Redact secrets, turn JSON into typed schemas and debug cron jobs across timezones. One fast workspace, no sign-up, nothing leaves your browser.</p>
+<div class="cta"><a class="btn" href="#sanitize">Open DevSanitize</a><a class="btn g" href="#payload">Try PayloadViz</a></div>
+<div class="chips"><span>100% client-side</span><span>No sign-up</span><span>Verify in the Network tab</span></div>
+<div class="demo"><div class="bar"><i></i><i></i><i></i><span id="dT">DevSanitize</span></div><pre id="dP"></pre></div>
+</div>
+<div class="stats">
+<div class="stat rv"><b data-to="3" data-suf="">0</b><span>tools in a single tab</span></div>
+<div class="stat rv" style="transition-delay:.1s"><b data-to="0" data-suf="">0</b><span>bytes sent to any server</span></div>
+<div class="stat rv" style="transition-delay:.2s"><b data-to="100" data-suf="%">0%</b><span>processed in your browser</span></div>
+</div>
+<div class="feat">
+<a class="card rv" href="#sanitize"><span class="n">01</span><h3>DevSanitize</h3><p>Strip API keys, tokens, emails and IPs from env files and logs before you share them.</p><span class="go">Open tool →</span></a>
+<a class="card rv" href="#payload" style="transition-delay:.1s"><span class="n">02</span><h3>PayloadViz</h3><p>Generate TypeScript, Zod, SQL or Pydantic from JSON, and decode JWTs locally.</p><span class="go">Open tool →</span></a>
+<a class="card rv" href="#cron" style="transition-delay:.2s"><span class="n">03</span><h3>CronStudio</h3><p>See real run times in several timezones and catch jobs that collide.</p><span class="go">Open tool →</span></a>
+</div>
+<div class="band rv"><h2>Paste. Convert. Ship.</h2><p>Bookmark it and stop juggling three different websites.</p><a href="#sanitize">Get started</a></div>
+</section>
+
+<section class="tool" id="sanitize">
+<h2 class="th">DevSanitize</h2><p class="td">Safely share configs and logs on GitHub, Slack or in LLM prompts.</p>
+<label for="sIn">Paste or upload .env, YAML, logs or stack traces</label>
+<div class="row" style="margin-top:0"><button class="btn g" id="sUp">Upload file</button><input type="file" id="sFile" hidden><span class="sub">or drag a file onto the box (read locally, never uploaded)</span></div>
+<div class="grid">
+<textarea id="sIn" spellcheck="false">DATABASE_URL=postgres://admin:hunter2@10.0.4.12:5432/prod
+STRIPE_SECRET_KEY=sk_live_51H8xYzAbCdEfGhIjKlMnOp
+APP_NAME=my-app
+PORT=3000
+# log sample
+2026-10-18 12:01:44 ERROR 203.0.113.42 user=jane@acme.com Authorization: Bearer abc123.def456-ghi789</textarea>
+<pre id="sOut"></pre>
+</div>
+<div class="row"><button class="btn" id="sRun">Sanitize</button><button class="btn g" data-copy="sOut">Copy result</button><span id="sStat" class="sub"></span></div>
+<h2>Config-to-code</h2>
+<div class="grid"><div><label>TypeScript</label><pre id="sTs"></pre></div><div><label>Python Pydantic</label><pre id="sPy"></pre></div></div>
+</section>
+
+<section class="tool" id="payload">
+<h2 class="th">PayloadViz</h2><p class="td">Generate types and schemas from raw JSON, and inspect tokens locally.</p>
+<label for="pIn">Paste or upload JSON</label>
+<div class="row" style="margin-top:0"><button class="btn g" id="pUp">Upload file</button><input type="file" id="pFile" hidden><span class="sub">or drag a .json file onto the box (read locally, never uploaded)</span></div>
+<div class="grid">
+<textarea id="pIn" spellcheck="false">{"id":42,"name":"Ada","active":true,"score":9.5,"created_at":"2026-10-18T10:00:00Z","tags":["a","b"],"address":{"city":"Pune","zip":"411001"}}</textarea>
+<div>
+<div class="row" style="margin-top:0"><select id="pFmt" style="width:auto"><option value="ts">TypeScript</option><option value="zod">Zod</option><option value="sql">SQL</option><option value="py">Pydantic v2</option></select><button class="btn g" data-copy="pOut">Copy</button></div>
+<pre id="pOut"></pre>
+</div></div>
+<h2>JWT decoder</h2>
+<textarea id="jIn" spellcheck="false" style="min-height:80px" placeholder="Paste a JWT (eyJ…)"></textarea>
+<div class="grid" style="margin-top:8px"><pre id="jH"></pre><pre id="jP"></pre></div>
+<p id="jS" class="sub"></p>
+</section>
+
+<section class="tool" id="cron">
+<h2 class="th">CronStudio</h2><p class="td">Preview upcoming runs and catch schedules that collide.</p>
+<label for="cIn">Cron expressions (one per line, 5 fields, evaluated in UTC)</label>
+<textarea id="cIn" spellcheck="false" style="min-height:90px">*/15 * * * *
+0 9 * * 1-5
+30 2 1 * *</textarea>
+<div class="row"><label style="margin:0">Extra zones:</label>
+<select id="z1" style="width:auto"></select><select id="z2" style="width:auto"></select>
+<button class="btn" id="cRun">Inspect</button></div>
+<p id="cErr" class="err"></p>
+<div class="tbl"><table id="cTbl"></table></div>
+<h2>Overlap &amp; conflict warnings (next 30 days)</h2>
+<pre id="cConf"></pre>
+</section>
+
+<div class="ad">Advertisement space</div>
+</main>
+<footer><div><b>DevKit</b><br>Free developer utilities, built for speed and privacy.</div><div>Nothing you paste is uploaded, stored or logged.<br>© 2026 DevKit</div></footer>
+
+<script>
+const $=s=>document.querySelector(s);
+/* tabs */
+function show(t){if(!document.getElementById(t))t='home';document.body.dataset.view=t==='home'?'home':'tool';window.scrollTo(0,0);document.querySelectorAll('.tool').forEach(e=>e.classList.toggle('on',e.id===t));document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));try{history.replaceState(null,'','#'+t)}catch(e){}}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
+document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{const t=document.getElementById(b.dataset.copy).textContent;navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>{const o=b.textContent;b.textContent='Copied ✓';setTimeout(()=>b.textContent=o,1200)})});
+
+/* DevSanitize */
+const SENS=/(key|secret|token|pass|pwd|auth|credential|private|dsn|salt|signature|url|uri)/i;
+const ph=k=>'YOUR_'+k.toUpperCase().replace(/[^A-Z0-9]+/g,'_');
+function sanitize(txt){let n=0;const keys=[];
+const lines=txt.split('\n').map(l=>{const m=l.match(/^(\s*(?:export\s+)?)([A-Za-z_][\w.-]*)(\s*[=:]\s*)(.*)$/);
+if(m&&!/^\s*#/.test(l)&&m[4]!==''&&!/\s/.test(m[2])){keys.push(m[2]);const v=m[4].replace(/^["']|["']$/g,'');
+if(SENS.test(m[2])||/^[A-Za-z0-9_\-\/+=.]{28,}$/.test(v)||/^(sk_|pk_|ghp_|AKIA|xox)/.test(v)){n++;return m[1]+m[2]+m[3]+ph(m[2])}}return l});
+let o=lines.join('\n');
+const R=[[/\b[a-z][a-z0-9+.-]*:\/\/[^\s:@\/]+:[^\s@]+@[^\s]+/gi,'<DB_CONNECTION_STRING>'],[/Bearer\s+[A-Za-z0-9._\-~+\/]+=*/gi,'Bearer <TOKEN>'],[/eyJ[\w-]+\.[\w-]+\.[\w-]+/g,'<JWT>'],[/\bAKIA[0-9A-Z]{16}\b/g,'<AWS_KEY>'],[/[\w.+-]+@[\w-]+(\.[\w-]+)+/g,'<EMAIL>'],[/\b(?:[0-9a-f]{1,4}:){7}[0-9a-f]{1,4}\b/gi,'<IPV6>'],[/\b(?:\d{1,3}\.){3}\d{1,3}\b/g,'<IPV4>']];
+R.forEach(([r,s])=>o=o.replace(r,()=>{n++;return s}));
+return{o,n,keys:[...new Set(keys)]}}
+function runS(){const r=sanitize($('#sIn').value);$('#sOut').textContent=r.o;$('#sStat').textContent=r.n+' item(s) redacted';
+$('#sTs').textContent=r.keys.length?'interface Env {\n'+r.keys.map(k=>'  '+k+': string;').join('\n')+'\n}':'No variables found';
+$('#sPy').textContent=r.keys.length?'from pydantic_settings import BaseSettings\n\nclass Settings(BaseSettings):\n'+r.keys.map(k=>'    '+k.toLowerCase()+': str').join('\n'):'No variables found'}
+$('#sRun').onclick=runS;
+
+/* PayloadViz */
+const cap=s=>s.replace(/(^|[_\-\s])(\w)/g,(_,a,c)=>c.toUpperCase()).replace(/\W/g,'')||'Item';
+const isDate=v=>typeof v==='string'&&/^\d{4}-\d\d-\d\d(T|$)/.test(v);
+function ts(v,nm,o){if(v===null)return'null';if(Array.isArray(v)){const t=[...new Set(v.map(x=>ts(x,nm+'Item',o)))];return(t.length?t.length>1?'('+t.join(' | ')+')':t[0]:'unknown')+'[]'}
+if(typeof v==='object'){const b=Object.entries(v).map(([k,x])=>'  '+(/^\w+$/.test(k)?k:JSON.stringify(k))+': '+ts(x,cap(k),o)+';').join('\n');o.push('interface '+nm+' {\n'+b+'\n}');return nm}return typeof v}
+function zod(v){if(v===null)return'z.null()';if(Array.isArray(v)){const t=[...new Set(v.map(zod))];return'z.array('+(t.length?t.length>1?'z.union(['+t.join(', ')+'])':t[0]:'z.unknown()')+')'}
+if(typeof v==='object')return'z.object({\n'+Object.entries(v).map(([k,x])=>'  '+(/^\w+$/.test(k)?k:JSON.stringify(k))+': '+zod(x)+',').join('\n')+'\n})';
+if(typeof v==='number')return Number.isInteger(v)?'z.number().int()':'z.number()';if(typeof v==='string')return isDate(v)?'z.string().datetime()':'z.string()';return'z.boolean()'}
+function py(v,nm,o){if(v===null)return'None';if(Array.isArray(v)){const t=[...new Set(v.map(x=>py(x,nm+'Item',o)))];return'list['+(t.length?t.join(' | '):'Any')+']'}
+if(typeof v==='object'){const b=Object.entries(v).map(([k,x])=>'    '+k.replace(/\W/g,'_')+': '+py(x,cap(k),o)).join('\n');o.push('class '+nm+'(BaseModel):\n'+(b||'    pass'));return nm}
+if(typeof v==='number')return Number.isInteger(v)?'int':'float';return typeof v==='string'?(isDate(v)?'datetime':'str'):'bool'}
+function sql(v){const r=Array.isArray(v)?(v[0]||{}):v;if(typeof r!=='object'||r===null)return'-- Provide a JSON object or an array of objects';
+const cols=Object.entries(r).map(([k,x])=>[k.replace(/\W/g,'_').toLowerCase(),typeof x==='number'?(Number.isInteger(x)?'INTEGER':'DOUBLE PRECISION'):typeof x==='boolean'?'BOOLEAN':isDate(x)?'TIMESTAMPTZ':typeof x==='string'?'TEXT':'JSONB']);
+const rows=Array.isArray(v)?v:[v];const lit=x=>x===null?'NULL':typeof x==='number'||typeof x==='boolean'?String(x).toUpperCase():"'"+(typeof x==='object'?JSON.stringify(x):x).replace(/'/g,"''")+"'";
+return'CREATE TABLE my_table (\n'+cols.map(c=>'  '+c[0]+' '+c[1]).join(',\n')+'\n);\n\n'+rows.map(o=>'INSERT INTO my_table ('+cols.map(c=>c[0]).join(', ')+') VALUES ('+Object.values(o).map(lit).join(', ')+');').join('\n')}
+function runP(){const out=$('#pOut');let v;try{v=JSON.parse($('#pIn').value)}catch(e){out.innerHTML='<span class="err">Invalid JSON: '+e.message.replace(/</g,'&lt;')+'</span>';return}
+const f=$('#pFmt').value,o=[];let t;
+if(f==='ts'){const r=ts(v,'Root',o);t=o.reverse().join('\n\n')||'type Root = '+r+';'}
+else if(f==='zod')t="import { z } from 'zod';\n\nexport const RootSchema = "+zod(v)+';\nexport type Root = z.infer<typeof RootSchema>;';
+else if(f==='sql')t=sql(v);
+else{py(v,'Root',o);t='from datetime import datetime\nfrom typing import Any\nfrom pydantic import BaseModel\n\n'+o.join('\n\n\n')}
+out.textContent=t}
+$('#pIn').oninput=runP;$('#pFmt').onchange=runP;
+const b64=s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return JSON.parse(decodeURIComponent(escape(atob(s))))};
+$('#jIn').oninput=()=>{const p=$('#jIn').value.trim().split('.');const s=$('#jS');
+if(p.length<2){$('#jH').textContent='';$('#jP').textContent='';s.textContent='';return}
+try{const h=b64(p[0]),d=b64(p[1]);$('#jH').textContent=JSON.stringify(h,null,2);$('#jP').textContent=JSON.stringify(d,null,2);
+if(d.exp){const e=new Date(d.exp*1000);s.className=e<new Date()?'err':'ok';s.textContent=(e<new Date()?'Expired on ':'Valid until ')+e.toLocaleString()}else{s.className='sub';s.textContent='No exp claim. Signature is not verified here.'}}
+catch(e){s.className='err';s.textContent='Could not decode token'}};
+
+/* CronStudio */
+function pf(f,min,max){const s=new Set();for(const part of f.split(',')){let[r,st]=part.split('/');st=st?+st:1;let a,b;
+if(r==='*'){a=min;b=max}else if(r.includes('-'))[a,b]=r.split('-').map(Number);else{a=+r;b=part.includes('/')?max:a}
+if([a,b,st].some(isNaN)||a<min||b>max||st<1||a>b)throw Error('Invalid field “'+f+'”');for(let i=a;i<=b;i+=st)s.add(i)}return s}
+function parse(e){const p=e.trim().split(/\s+/);if(p.length!==5)throw Error('Expected 5 fields in “'+e+'”');
+const dw=pf(p[4],0,7);if(dw.has(7))dw.add(0);return{m:pf(p[0],0,59),h:pf(p[1],0,23),dom:pf(p[2],1,31),mo:pf(p[3],1,12),dow:dw,d1:p[2]!=='*',d2:p[4]!=='*'}}
+function match(c,d){if(!c.m.has(d.getUTCMinutes())||!c.h.has(d.getUTCHours())||!c.mo.has(d.getUTCMonth()+1))return false;
+const a=c.dom.has(d.getUTCDate()),b=c.dow.has(d.getUTCDay());return c.d1&&c.d2?(a||b):(a&&b)}
+function runs(c,lim,days){const o=[];let t=Math.floor(Date.now()/6e4+1)*6e4;const end=t+days*864e5;for(;t<end&&o.length<lim;t+=6e4)if(match(c,new Date(t)))o.push(t);return o}
+const ZONES=['UTC','America/New_York','America/Los_Angeles','Europe/London','Europe/Berlin','Asia/Kolkata','Asia/Singapore','Asia/Tokyo','Australia/Sydney'];
+ZONES.forEach(z=>{['#z1','#z2'].forEach(s=>{const o=document.createElement('option');o.value=o.textContent=z;$(s).appendChild(o)})});
+$('#z1').value='America/New_York';$('#z2').value='Asia/Kolkata';
+const fmt=(t,z)=>new Intl.DateTimeFormat('en-GB',{timeZone:z,dateStyle:'medium',timeStyle:'short'}).format(t);
+function runC(){const err=$('#cErr');err.textContent='';const lines=$('#cIn').value.split('\n').map(x=>x.trim()).filter(Boolean);
+const tz=['UTC',Intl.DateTimeFormat().resolvedOptions().timeZone,$('#z1').value,$('#z2').value];
+const cs=[];try{lines.forEach(l=>cs.push(parse(l)))}catch(e){err.textContent=e.message;return}
+const tb=$('#cTbl');tb.innerHTML='<tr><th>#</th><th>Cron</th>'+tz.map((z,i)=>'<th>'+(i===1?'Local ('+z+')':z)+'</th>').join('')+'</tr>';
+cs.forEach((c,i)=>{const r=runs(c,6,30);if(!r.length)tb.innerHTML+='<tr><td>'+(i+1)+'</td><td>'+lines[i]+'</td><td colspan="4" class="warn">No runs in the next 30 days</td></tr>';
+r.forEach((t,j)=>tb.innerHTML+='<tr><td>'+(j?'':i+1)+'</td><td>'+(j?'':lines[i])+'</td>'+tz.map(z=>'<td>'+fmt(t,z)+'</td>').join('')+'</tr>')});
+const all=cs.map(c=>runs(c,1e5,30));const seen={};all.forEach((a,i)=>a.forEach(t=>(seen[t]=seen[t]||[]).push(i+1)));
+const hits=Object.entries(seen).filter(([t,v])=>v.length>1).slice(0,10);
+$('#cConf').innerHTML=cs.length<2?'Add two or more schedules to detect overlaps.':hits.length?hits.map(([t,v])=>'<span class="warn">⚠ '+fmt(+t,'UTC')+' UTC: jobs '+v.join(' &amp; ')+' fire together</span>').join('\n'):'<span class="ok">No overlapping runs in the next 30 days.</span>'}
+$('#cRun').onclick=runC;
+
+function readFile(f,ta,cb){if(!f)return;if(f.size>5e6){alert('File is too large (max 5 MB).');return}const r=new FileReader();r.onload=()=>{if(String(r.result).includes('\u0000')){alert('This looks like a binary file. Please choose a text file.');return}ta.value=r.result;cb()};r.onerror=()=>alert('Could not read the file.');r.readAsText(f)}
+function wireUpload(btn,inp,ta,cb){btn.onclick=()=>inp.click();inp.onchange=()=>{readFile(inp.files[0],ta,cb);inp.value=''};ta.ondragover=e=>{e.preventDefault();ta.style.outline='2px dashed var(--ac)'};ta.ondragleave=()=>ta.style.outline='';ta.ondrop=e=>{e.preventDefault();ta.style.outline='';readFile(e.dataTransfer.files[0],ta,cb)}}
+wireUpload($('#sUp'),$('#sFile'),$('#sIn'),runS);
+wireUpload($('#pUp'),$('#pFile'),$('#pIn'),runP);
+$('#theme').onclick=()=>{const r=document.documentElement;const d=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=d?'light':'dark'};
+/* home animations */
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,sleep=ms=>new Promise(r=>setTimeout(r,ms));
+(async()=>{const el=$('#rot'),w=['sanitize secrets','convert JSON','debug cron jobs'];let i=0;if(reduce){el.textContent=w[0];return}
+while(1){const s=w[i++%w.length];for(let k=1;k<=s.length;k++){el.textContent=s.slice(0,k);await sleep(80)}await sleep(1500);for(let k=s.length;k>=0;k--){el.textContent=s.slice(0,k);await sleep(35)}await sleep(250)}})();
+const DEMOS=[['DevSanitize','STRIPE_SECRET_KEY=sk_live_51H8xYz…\nDATABASE_URL=postgres://admin:hunter2@10.0.4.12\n\n→ STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_KEY\n→ DATABASE_URL=<DB_CONNECTION_STRING>'],['PayloadViz','{"id":42,"name":"Ada","active":true}\n\n→ interface Root {\n    id: number;\n    name: string;\n    active: boolean;\n  }'],['CronStudio','*/15 9-17 * * 1-5\n\n→ Next: Mon 09:00, 09:15, 09:30 …\n→ Shown in UTC, local time and any zone you pick']];
+(async()=>{const t=$('#dT'),p=$('#dP');if(reduce){t.textContent=DEMOS[0][0];p.textContent=DEMOS[0][1];return}
+for(let i=0;;i=(i+1)%DEMOS.length){const[n,s]=DEMOS[i];t.textContent=n;p.textContent='';for(let k=1;k<=s.length;k++){p.textContent=s.slice(0,k);await sleep(s[k-1]==='\n'?160:22)}await sleep(2600)}})();
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;e.target.classList.add('in');const b=e.target.querySelector('[data-to]');
+if(b&&!b.done){b.done=1;const to=+b.dataset.to,s=b.dataset.suf||'';if(reduce||!to){b.textContent=to+s}else{let t0;const f=t=>{t0=t0||t;const p=Math.min((t-t0)/1200,1);b.textContent=Math.round(to*(1-Math.pow(1-p,3)))+s;if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)}}
+io.unobserve(e.target)}),{threshold:.2});
+document.querySelectorAll('.rv').forEach(e=>io.observe(e));
+window.onhashchange=()=>show(location.hash.slice(1)||'home');
+runS();runP();runC();show(location.hash.slice(1)||'home');
+</script>
+</body>
+</html>
